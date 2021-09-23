@@ -1,8 +1,8 @@
 # importing the requests library
 import requests
 
-from utils.constants import API_KEY, BASE_URL
-from utils.helper import round_up, get_random_game, round_down
+from utils.constants import API_KEY, BASE_URL, IMAGE_API_KEY, IMAGE_SEARCH_URL
+from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games
 
 
 def get_games():
@@ -27,11 +27,6 @@ def get_game_by_id(game_id):
     return data
 
 
-def get_random_game_by_genre(game_id):
-    genre = get_game_by_id(game_id)['genres'][0]['slug']
-    return get_random_game(get_games_by_genre(genre))
-
-
 def get_games_by_genre(genre):
     params = {
         'key': API_KEY,
@@ -45,16 +40,33 @@ def get_games_by_genre(genre):
     return data['results']
 
 
-def get_games_by_metacritic(metacritic):
+def get_random_games_by_genres(game_ids):
+    genres = set()
+    original_games = []
+    for _id in game_ids:
+        cur_game = get_game_by_id(_id)
+        original_games.append(cur_game)
+        genres_object = cur_game['genres']
+        new_genres = get_genres(genres_object)
+
+        for genre in new_genres:
+            genres.add(genre)
+
+    games_per_genre = get_games_per_genre(genres)
+    games = []
+    for genre in genres:
+        games += get_random_games(get_games_by_genre(genre), games_per_genre, original_games)
+    return games
+
+
+def get_games_by_metacritic(metacritic, genre):
     metacritic_from = round_down(metacritic) if metacritic else 90
     metacritic_to = round_up(metacritic) if metacritic else 99
-    print(metacritic_from)
-    print(metacritic_to)
-
     params = {
         'key': API_KEY,
         'page_size': 40,
         'platforms': 4,
+        'genres': genre if genre else 'adventure',
         'metacritic': str(metacritic_from) + ',' + str(metacritic_to),
     }
     url = BASE_URL + '/games'
@@ -63,17 +75,25 @@ def get_games_by_metacritic(metacritic):
     return data['results']
 
 
-def get_random_game_by_metacritic(game_id):
-    game = get_game_by_id(game_id)
-    metacritic = game['metacritic']
-    return get_random_game(get_games_by_metacritic(metacritic))
+# def get_random_game_by_metacritic(game_id):
+#     game = get_game_by_id(game_id)
+#     metacritic = game['metacritic']
+#
+#     genre = get_game_by_id(game_id)['genres'][0]['slug']
+#     return clean_game_object(get_random_game(get_games_by_metacritic(metacritic, genre)))
 
 
-def get_recommended_games(game_id):
-    games = []
-    for _id in game_id:
-        print(_id)
-        games.append(get_random_game_by_genre(_id))
-        games.append(get_random_game_by_metacritic(_id))
+def get_recommended_games(game_ids):
+    return get_random_games_by_genres(game_ids)
 
-    return games
+
+def get_image_search_data(url):
+    params = {
+        'engine': 'google_reverse_image',
+        'image_url': url,
+        'api_key': IMAGE_API_KEY,
+    }
+    url = IMAGE_SEARCH_URL
+    r = requests.get(url=url, params=params)
+    data = r.json()
+    return data

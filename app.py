@@ -1,7 +1,9 @@
 from flask import Flask
 from flask.json import jsonify
 from flask import request
-from utils.api import get_games, get_games_by_genre, get_games_by_metacritic, get_game_by_id, get_recommended_games
+from flask_cors import cross_origin
+from utils.api import get_games, get_games_by_genre, get_games_by_metacritic, get_game_by_id, get_recommended_games, \
+    get_image_search_data
 
 app = Flask(__name__)
 
@@ -20,7 +22,7 @@ def genres():
 
 @app.route('/metacritic', methods=['GET'])
 def metacritic():
-    metacritic_data = get_games_by_metacritic(97)
+    metacritic_data = get_games_by_metacritic(97, 'action')
     return jsonify(metacritic_data)
 
 
@@ -31,10 +33,19 @@ def get_single_game(game_id):
 
 
 @app.route('/recommend', methods=['POST'])
+@cross_origin()
 def get_recommendation():
     game_ids = request.form.getlist('game_id')
     games = get_recommended_games(game_ids)
     return jsonify({'games': games, 'length': len(games)})
+
+
+@app.route('/image_search', methods=['GET'])
+@cross_origin()
+def get_image_search():
+    url = request.args.get('image_url')
+    image_data = get_image_search_data(url)
+    return jsonify(image_data)
 
 
 if __name__ == '__main__':
