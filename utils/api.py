@@ -51,7 +51,6 @@ def get_random_games_by_genres(game_ids):
     return games
 
 
-@deprecated
 def get_games_by_metacritic(metacritic, genre):
     """Retrieve games between a given metacritic range"""
     metacritic_from = round_down(metacritic) if metacritic else 90

@@ -7,6 +7,11 @@ from utils.api import get_recommended_games, get_image_search_data, save_liked_g
 app = Flask(__name__)
 
 
+@app.route('/')
+def hello():
+    return jsonify({'message': 'Server running', 'success': True})
+
+
 @app.route('/recommend', methods=['POST'])
 @cross_origin()
 def get_recommendation():
