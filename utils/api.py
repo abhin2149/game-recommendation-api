@@ -1,25 +1,12 @@
-# importing the requests library
 import requests
-
 from db.db import sql_connection, create_table, insert_into_table, fetch_from_table
 from utils.constants import API_KEY, BASE_URL, IMAGE_API_KEY, IMAGE_SEARCH_URL
 from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games, format_games, \
     get_random_page
 
 
-def get_games():
-    params = {
-        'key': API_KEY,
-        'page_size': 40,
-        'platforms': 4
-    }
-    url = BASE_URL + '/games'
-    r = requests.get(url=url, params=params)
-    data = r.json()
-    return {'games': data['results']}
-
-
 def get_game_by_id(game_id):
+    """Retrieve a game using the unique id"""
     params = {
         'key': API_KEY,
     }
@@ -30,6 +17,7 @@ def get_game_by_id(game_id):
 
 
 def get_games_by_genre(genre):
+    """Retrieve all the games belonging to a genre"""
     page = get_random_page()
     params = {
         'key': API_KEY,
@@ -45,6 +33,7 @@ def get_games_by_genre(genre):
 
 
 def get_random_games_by_genres(game_ids):
+    """Main function to get random games by each genre"""
     genres = set()
     original_games = []
     for _id in game_ids:
@@ -52,7 +41,6 @@ def get_random_games_by_genres(game_ids):
         original_games.append(cur_game)
         genres_object = cur_game['genres']
         new_genres = get_genres(genres_object)
-
         for genre in new_genres:
             genres.add(genre)
 
@@ -63,7 +51,9 @@ def get_random_games_by_genres(game_ids):
     return games
 
 
+@deprecated
 def get_games_by_metacritic(metacritic, genre):
+    """Retrieve games between a given metacritic range"""
     metacritic_from = round_down(metacritic) if metacritic else 90
     metacritic_to = round_up(metacritic) if metacritic else 99
     params = {
@@ -79,19 +69,13 @@ def get_games_by_metacritic(metacritic, genre):
     return data['results']
 
 
-# def get_random_game_by_metacritic(game_id):
-#     game = get_game_by_id(game_id)
-#     metacritic = game['metacritic']
-#
-#     genre = get_game_by_id(game_id)['genres'][0]['slug']
-#     return clean_game_object(get_random_game(get_games_by_metacritic(metacritic, genre)))
-
-
 def get_recommended_games(game_ids):
+    """Driver function to get recommended games"""
     return get_random_games_by_genres(game_ids)
 
 
 def get_image_search_data(url):
+    """Retrieve image analysis result"""
     params = {
         'engine': 'google_reverse_image',
         'image_url': url,
@@ -104,6 +88,7 @@ def get_image_search_data(url):
 
 
 def save_liked_games(_id, name, rating, date):
+    """Save liked games to sqlite DB"""
     con = sql_connection()
     create_table(con)
     game = {
@@ -116,6 +101,7 @@ def save_liked_games(_id, name, rating, date):
 
 
 def get_liked_games():
+    """Retrieve liked games from sqlite Db"""
     con = sql_connection()
     games_sql = fetch_from_table(con)
     games = format_games(games_sql)

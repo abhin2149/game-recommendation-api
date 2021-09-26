@@ -2,34 +2,9 @@ from flask import Flask
 from flask.json import jsonify
 from flask import request
 from flask_cors import cross_origin
-from utils.api import get_games, get_games_by_genre, get_games_by_metacritic, get_game_by_id, get_recommended_games, \
-    get_image_search_data, save_liked_games, get_liked_games
+from utils.api import get_recommended_games, get_image_search_data, save_liked_games, get_liked_games
 
 app = Flask(__name__)
-
-
-@app.route('/')
-def hello_world():
-    games_data = get_games()
-    return jsonify(games_data)
-
-
-@app.route('/genres', methods=['GET'])
-def genres():
-    genres_data = get_games_by_genre('action')
-    return jsonify(genres_data)
-
-
-@app.route('/metacritic', methods=['GET'])
-def metacritic():
-    metacritic_data = get_games_by_metacritic(97, 'action')
-    return jsonify(metacritic_data)
-
-
-@app.route('/games/<game_id>', methods=['GET'])
-def get_single_game(game_id):
-    game = get_game_by_id(game_id)
-    return jsonify(game)
 
 
 @app.route('/recommend', methods=['POST'])
