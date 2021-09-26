@@ -3,7 +3,8 @@ import requests
 
 from db.db import sql_connection, create_table, insert_into_table, fetch_from_table
 from utils.constants import API_KEY, BASE_URL, IMAGE_API_KEY, IMAGE_SEARCH_URL
-from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games, format_games
+from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games, format_games, \
+    get_random_page
 
 
 def get_games():
@@ -29,11 +30,13 @@ def get_game_by_id(game_id):
 
 
 def get_games_by_genre(genre):
+    page = get_random_page()
     params = {
         'key': API_KEY,
+        'page': page,
         'page_size': 40,
         'platforms': 4,
-        'genres': genre if genre else 'adventure',
+        'genres': genre if genre else 'action',
     }
     url = BASE_URL + '/games'
     r = requests.get(url=url, params=params)

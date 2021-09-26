@@ -60,6 +60,7 @@ def like_game():
 
 
 @app.route('/like', methods=['GET'])
+@cross_origin()
 def fetch_liked_games():
     games = get_liked_games()
     return jsonify(games)

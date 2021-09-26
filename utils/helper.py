@@ -26,6 +26,11 @@ def get_random_games(games, n, original_games):
     return random.sample(games, n)
 
 
+def get_random_page():
+    """"Return a random page number to fetch the games from"""
+    return random.randint(1, 5)
+
+
 def get_genres(genres_object):
     """Cleans the genres object and extracts the required details"""
     genres = []
@@ -48,7 +53,7 @@ def format_games(games_sql):
             'id': game[0],
             'name': game[1],
             'rating': game[2],
-            'date': game[3],
+            'released': game[3],
         }
         games.append(games_obj)
 
