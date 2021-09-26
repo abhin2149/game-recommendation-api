@@ -36,5 +36,20 @@ def get_genres(genres_object):
 
 
 def get_games_per_genre(genres):
+    """Calculate games returned per genre"""
     return int(math.ceil(GAMES_COUNT / len(genres)))
 
+
+def format_games(games_sql):
+    """Convert sql tuple to games object"""
+    games = []
+    for game in games_sql:
+        games_obj = {
+            'id': game[0],
+            'name': game[1],
+            'rating': game[2],
+            'date': game[3],
+        }
+        games.append(games_obj)
+
+    return games

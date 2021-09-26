@@ -1,8 +1,9 @@
 # importing the requests library
 import requests
 
+from db.db import sql_connection, create_table, insert_into_table, fetch_from_table
 from utils.constants import API_KEY, BASE_URL, IMAGE_API_KEY, IMAGE_SEARCH_URL
-from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games
+from utils.helper import round_up, round_down, get_genres, get_games_per_genre, get_random_games, format_games
 
 
 def get_games():
@@ -97,3 +98,23 @@ def get_image_search_data(url):
     r = requests.get(url=url, params=params)
     data = r.json()
     return data
+
+
+def save_liked_games(_id, name, rating, date):
+    con = sql_connection()
+    create_table(con)
+    game = {
+        'id': _id,
+        'name': name,
+        'rating': rating,
+        'date': date,
+    }
+    insert_into_table(game, con)
+
+
+def get_liked_games():
+    con = sql_connection()
+    games_sql = fetch_from_table(con)
+    games = format_games(games_sql)
+    return games
+
